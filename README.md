@@ -59,6 +59,6 @@ new_candidate, _ = optimize_acqf(
 
 For more detailed usage examples, see ```examples```.
 
-##Contributors
+## Contributors
 
-Felix Strieth-Kalthoff (@felix-s-k), Mohammad Haddadnia (@mohaddadnia) 
+Felix Strieth-Kalthoff ([@felix-s-k](https://github.com/felix-s-k)), Mohammad Haddadnia ([@mohaddadnia](https://github.com/Mohaddadnia)) 
