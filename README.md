@@ -52,9 +52,7 @@ acqf = qExpectedImprovement(
     best_f=torch.max(train_y)
 )
 
-new_candidate, _ = optimize_acqf(
-    acqf
-
+new_candidate, _ = optimize_acqf(acqf, bounds=torch.tensor([[0.0], [1.0]]), q=1, num_restarts=5, raw_samples=512)
 ```
 
 For more detailed usage examples, see ```examples```.
