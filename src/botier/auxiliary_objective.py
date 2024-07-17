@@ -75,9 +75,9 @@ class AuxiliaryObjective(torch.nn.Module):
                 if maximize is True and abs_threshold < worst_value:
                     raise ValueError("For maximization problems, the satisfaction threshold must be greater than the "
                                      "worst possible value.")
-                elif maximize is False and abs_threshold > best_value:
+                elif maximize is False and abs_threshold > worst_value:
                     raise ValueError("For minimization problems, the satisfaction threshold must be smaller than the "
-                                     "best possible value.")
+                                     "worst possible value.")
                 self.normalizable = True
             else:
                 self.normalizable = False
@@ -85,7 +85,7 @@ class AuxiliaryObjective(torch.nn.Module):
                 if maximize is True and abs_threshold > best_value:
                     raise ValueError("For maximization problems, the satisfaction threshold must be smaller than the "
                                      "best possible value.")
-                elif maximize is False and abs_threshold < worst_value:
+                elif maximize is False and abs_threshold < best_value:
                     raise ValueError("For minimization problems, the satisfaction threshold must be greater than the "
                                      "worst possible value.")
 
