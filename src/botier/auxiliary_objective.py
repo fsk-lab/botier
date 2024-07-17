@@ -15,10 +15,15 @@ class AuxiliaryObjective(torch.nn.Module):
                           is `sample_shape x batch_shape x q x m`)
                         - X: A `...`-dim tensor of inputs. Relevant only if the objective depends on the inputs
                              explicitly.
-        worst_value: The worst possible value of the objective. Required in case the objective should be MinMax-scaled
-                     between `worst_value` and `abs_threshold`.
-        best_value: The best possible value of the objective. Required in case the objective should be MinMax-scaled
-                     between `worst_value` and `abs_threshold`, but only `rel_threshold` is provided.
+        lower_bound: The lower bound value of the objective. Corresponds to the worst value for maximization problems
+                     and the best value for minimization problems. Required in case the objective should be MinMax-
+                     scaled between `worst_value` and `abs_threshold`. All values outside the window [lower_bound,
+                     upper_bound] are clipped to the respective bound.
+        upper_bound: The upper bound value of the objective. Corresponds to the best value for maximization problems and
+                     the worst value for minimization problems. Required in case the objective should be MinMax-scaled
+                     between `worst_value` and `abs_threshold`, but only `rel_threshold` is provided. During MinMax-
+                     scaling, all values outside the window [lower_bound, upper_bound] are clipped to the respective
+                     bound.
         abs_threshold: An absolute threshold value for the objective.
         rel_threshold: A threshold value for the objective. Required only if abs_threshold is not provided.
         output_index: The index of the output dimension of the samples that the objective depends on.
@@ -27,8 +32,8 @@ class AuxiliaryObjective(torch.nn.Module):
             self,
             maximize: bool = True,
             calculation: Optional[Callable] = None,
-            best_value: Optional[float] = None,
-            worst_value: Optional[float] = None,
+            upper_bound: Optional[float] = None,
+            lower_bound: Optional[float] = None,
             abs_threshold: Optional[float] = None,
             rel_threshold: Optional[float] = None,
             output_index: Optional[int] = None
@@ -45,14 +50,15 @@ class AuxiliaryObjective(torch.nn.Module):
             self.function = calculation
 
         # Set the boundary values
-        if best_value is not None and worst_value is not None:
-            if maximize is True and best_value < worst_value:
-                raise ValueError("For maximization problems, the best possible value must be greater than the worst "
-                                 "possible value.")
-            elif maximize is False and best_value > worst_value:
-                raise ValueError("For minimization problems, the best possible value must be smaller than the worst "
-                                 "possible value.")
-        self.best_value, self.worst_value = best_value, worst_value
+        if upper_bound is not None and lower_bound is not None:
+            if upper_bound < lower_bound:
+                raise ValueError("The upper bound must be greater than the lower bound.")
+            if maximize is True:
+                self.best_value, self.worst_value = upper_bound, lower_bound
+            else:
+                self.best_value, self.worst_value = lower_bound, upper_bound
+        else:
+            self.best_value, self.worst_value = None, None
 
         # if `abs_threshold` is not provided, the threshold is calculated from the relative threshold and the best and
         # worst values
@@ -65,29 +71,29 @@ class AuxiliaryObjective(torch.nn.Module):
                                  " and worst values need to be given, too")
             if rel_threshold < 0.0 or rel_threshold > 1.0:
                 raise ValueError("The relative satisfaction threshold must be between 0 and 1.")
-            self.abs_threshold = worst_value + rel_threshold * (best_value - worst_value)
+            self.abs_threshold = self.worst_value + rel_threshold * (self.best_value - self.worst_value)
             self.normalizable = True
 
         # if `abs_threshold` is provided, the threshold is set to this value after checking compatibility with
         # the best and worst values
         else:
-            if worst_value is not None:
-                if maximize is True and abs_threshold < worst_value:
+            if self.best_value is not None:
+                if maximize is True and abs_threshold < self.worst_value:
                     raise ValueError("For maximization problems, the satisfaction threshold must be greater than the "
                                      "worst possible value.")
-                elif maximize is False and abs_threshold > worst_value:
+                elif maximize is False and abs_threshold > self.worst_value:
                     raise ValueError("For minimization problems, the satisfaction threshold must be smaller than the "
                                      "worst possible value.")
                 self.normalizable = True
             else:
                 self.normalizable = False
-            if best_value is not None:
-                if maximize is True and abs_threshold > best_value:
+            if self.best_value is not None:
+                if maximize is True and abs_threshold > self.best_value:
                     raise ValueError("For maximization problems, the satisfaction threshold must be smaller than the "
                                      "best possible value.")
-                elif maximize is False and abs_threshold < best_value:
+                elif maximize is False and abs_threshold < self.best_value:
                     raise ValueError("For minimization problems, the satisfaction threshold must be greater than the "
-                                     "worst possible value.")
+                                     "best possible value.")
 
             self.abs_threshold = abs_threshold
 
@@ -111,6 +117,15 @@ class AuxiliaryObjective(torch.nn.Module):
         # Performs a MinMax normalization
         if normalize and self.normalizable:
             values = (values - self.worst_value) / (self.threshold - self.worst_value)
+
+            if self.best_value is None:
+                values = torch.clamp(values, 0.0)
+            else:
+                best_value = (self.best_value - self.worst_value) / (self.threshold - self.worst_value)
+                values = torch.clamp(values, 0.0, best_value)
+
+        else:
+            pass  # ATTN: Do we need to invert the objective in case it is a minimization objective?
 
         return values
 
