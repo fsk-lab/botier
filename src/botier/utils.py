@@ -4,20 +4,6 @@ import torch
 from torch import Tensor
 
 
-def tensor_argument(func):
-    """
-    Decorator for class / instance methods that ensures that the first argument is a tensor.
-    """
-    def wrapper(self, x: Tensor, *args, **kwargs):
-        if not isinstance(x, Tensor):
-            try:
-                x = torch.tensor(x)
-            except Exception:
-                raise ValueError(f"The input argument of {func.__name__} is not a tensor and cannot be converted.")
-        return func(self, x, *args, **kwargs)
-    return wrapper
-
-
 def smoothmin(x: Tensor, x_0: Union[float, Tensor], k: float = 1E2) -> Tensor:
     """
     Implementation of a smoothened and differentiable version of the minimum function. For all values in the input

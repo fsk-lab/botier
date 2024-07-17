@@ -12,13 +12,8 @@ class HierarchyScalarizationObjective(MCAcquisitionObjective):
     Implementation of the HierarchyScalarizer as a MCAcquisitionObjective for botorch's MonteCarlo acquisition function
     framework.
 
-    Takes a `sample_shape x batch_shape x q x m` tensor (as returned by botorch's posterior sampling routine), where...
-        - `sample_shape` is the number (or shape) of posterior samples
-        - `batch_shape` is the number of x locations to be evaluated simultaneously (e.g. during acquisition function
-          optimization)
-        - `q` is the number of x locations for which a joint acquisition function optimum should be obtained (batch
-          acquisition)
-        - `m` is the number of model outputs
+    Takes a `... x m` tensor (e.g. a set of posterior samples with `sample_shape x batch_shape x q x m`  returned by
+    botorch's posterior sampling routine), where `m` is the number of model outputs
 
     First calculates the objective values g_i(x) for each of the N objective from the inputs and model predictions (as
     specified in AuxiliaryObjective.forward(...)). Second, applies the hierarchy scalarization relative to threshold
@@ -26,7 +21,7 @@ class HierarchyScalarizationObjective(MCAcquisitionObjective):
 
     h(x) = \sum_{i=1}^{N}{min(g_i(x), t_i) \cdot \prod_{j=1}^{i-1}{H(g_j(x)-t_j)}} + f_fin(x) * \prod_{i=1}{N}{H(g_i(x)-t_i)}
 
-    Returns a reduced `sample_shape x batch_shape x q` tensor of scalarized objective values.
+    Returns a reduced `...` tensor of scalarized objective values.
 
     Args:
         objectives: A list of AuxiliaryObjective objects, defining the value ranges and the satisfaction threshold for
@@ -34,8 +29,8 @@ class HierarchyScalarizationObjective(MCAcquisitionObjective):
         final_objective_idx: [optional] An integer defining which objective in `objectives` should be optimized if the
                              satisfaction criteria are met for all objectives. Defaults to 0 (i.e. the first objective
                              in the hierarchy).
-        normalized_objectives: True if the objectives should each be normalized on a [0, 1] scale before applying the
-                               hierarchy scalarization
+        normalized_objectives: True if the objectives should each be normalized on a [0, 1] scale (0: worst possible
+                               value, 1: threshold) before applying the hierarchy scalarization
         k: [optional] The smoothing factor applied to the smoothened, differentiable versions of the min and Heavyside
            functions
     """
@@ -67,11 +62,14 @@ class HierarchyScalarizationObjective(MCAcquisitionObjective):
             if samples.dim() != X.dim():
                 X = X.expand(*samples.size()[:-1], X.size(dim=-1))
 
-        objective_values = torch.stack([obj(samples, X, normalize=self._norm) for obj in self.objectives], dim=-1)  # shape: `... x num_objectives`
+        objective_values = torch.stack(
+            [obj(samples, X, normalize=self._norm) for obj in self.objectives],
+            dim=-1
+        )  # shape: `... x num_objectives`
 
         if self._norm is True:
-            thresholds = torch.tensor([obj.normalized_threshold for obj in self.objectives], device=samples.device)  # shape: `num_objectives`
+            thresholds = torch.tensor([1.0 for _ in self.objectives]).to(samples)  # shape: `num_objectives`
         else:
-            thresholds = torch.tensor([obj.threshold for obj in self.objectives], device=samples.device)  # shape: `num_objectives`
+            thresholds = torch.tensor([obj.threshold for obj in self.objectives]).to(samples)  # shape: `num_objectives`
 
         return self.scalarizer(objective_values, thresholds)
