@@ -50,6 +50,7 @@ class AuxiliaryObjective(torch.nn.Module):
             self.function = calculation
 
         # Set the boundary values
+        self.maximize = maximize
         if upper_bound is not None and lower_bound is not None:
             if upper_bound < lower_bound:
                 raise ValueError("The upper bound must be greater than the lower bound.")
