@@ -25,7 +25,18 @@ def smoothmin(x: Tensor, x_0: Union[float, Tensor], k: float = 1E2) -> Tensor:
         x_0 = torch.tensor(x_0)
     if not isinstance(k, Tensor):
         k = torch.tensor(k)
-    return (x * torch.exp(-k * x) + x_0 * torch.exp(-k * x_0)) / (torch.exp(-k * x) + torch.exp(-k * x_0))
+
+    shift = torch.minimum(x.detach(), x_0.detach())  # this is for numerical reasons
+
+    exp_input = torch.exp(-k * (x - shift))
+    exp_x_0 = torch.exp(-k * (x_0 - shift))
+
+    numerator = x * exp_input + x_0 * exp_x_0
+    denominator = exp_input + exp_x_0
+
+    # Compute the smooth minimum and add the shift back
+    smooth_min = numerator / denominator
+    return smooth_min
 
 
 def logistic(x: Tensor, x_0: Union[float, Tensor], k: float = 1E2) -> Tensor:
