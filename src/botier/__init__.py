@@ -7,7 +7,7 @@ integrated with the botorch ecosystem for Bayesian Optimization.
 """
 
 from .auxiliary_objective import AuxiliaryObjective
-from .hierarchy_scalarization_objective import HierarchyScalarizationObjective
+from .hierarchy_scalarization_objective import HierarchyScalarizationObjective, ObjectiveCalculator
 from .hierarchy_scalarizer import HierarchyScalarizer
 
 

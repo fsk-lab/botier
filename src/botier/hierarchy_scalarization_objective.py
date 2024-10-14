@@ -91,3 +91,22 @@ class HierarchyScalarizationObjective(MCAcquisitionObjective):
             thresholds = torch.tensor([obj.threshold for obj in self.objectives]).to(samples)  # shape: `num_objectives`
 
         return self.scalarizer(objective_values, thresholds)
+
+
+class ObjectiveCalculator(MCMultiOutputObjective, HierarchyScalarizationObjective):
+    """
+    Implementation of a naive objective calculator that can be used as a MCMultiOutputObjective for botorch-type
+    optimizations, and has access to the `calculate_objective_values` method from HierarchyScalarizationObjective.
+    """
+    def __init__(
+            self,
+            objectives: List[AuxiliaryObjective],
+            final_objective_idx: Optional[int] = 0,
+            normalized_objectives: bool = True,
+            k: Optional[float] = 1E2,
+    ):
+        HierarchyScalarizationObjective.__init__(self, objectives, final_objective_idx, normalized_objectives, k)
+        MCMultiOutputObjective.__init__(self)
+
+    def forward(self, samples: Tensor, X: Optional[Tensor] = None, **kwargs) -> Tensor:
+        return self.calculate_objective_values(samples, X, normalize=self._norm)
