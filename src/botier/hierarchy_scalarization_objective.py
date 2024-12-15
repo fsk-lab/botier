@@ -106,8 +106,9 @@ class ObjectiveCalculator(MCMultiOutputObjective, HierarchyScalarizationObjectiv
             normalized_objectives: bool = True,
             k: Optional[float] = 1E2,
     ):
-        HierarchyScalarizationObjective.__init__(self, objectives, final_objective_idx, normalized_objectives, k)
-        MCMultiOutputObjective.__init__(self)
+        # HierarchyScalarizationObjective.__init__(self, objectives, final_objective_idx, normalized_objectives, k)
+        # MCMultiOutputObjective.__init__(self)
+        super().__init__(objectives, final_objective_idx=final_objective_idx, normalized_objectives=normalized_objectives, k=k)
 
     def forward(self, samples: torch.Tensor, X: Optional[torch.Tensor] = None, **kwargs) -> torch.Tensor:
         return self.calculate_objective_values(samples, X, normalize=self._norm)

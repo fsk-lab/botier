@@ -9,7 +9,7 @@ integrated with the botorch ecosystem for Bayesian Optimization.
 import importlib.metadata as _metadata
 
 from botier.auxiliary_objective import AuxiliaryObjective
-from botier.hierarchy_scalarization_objective import HierarchyScalarizationObjective
+from botier.hierarchy_scalarization_objective import HierarchyScalarizationObjective, ObjectiveCalculator
 from botier.hierarchy_scalarizer import HierarchyScalarizer
 
 __version__ = _metadata.version("botier")
@@ -17,6 +17,7 @@ __version__ = _metadata.version("botier")
 __all__ = [
     "AuxiliaryObjective",
     "HierarchyScalarizationObjective",
+    "ObjectiveCalculator",
     "HierarchyScalarizer",
     "__version__",
 ]

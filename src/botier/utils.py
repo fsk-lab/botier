@@ -9,9 +9,9 @@ def smoothmin(x: torch.Tensor, x_0: Union[float, torch.Tensor], k: float = 1E2) 
     controlled by the parameter :code:`k`.
 
     Mathematically, the function is defined as:
-    
+
     .. math::
-        \mathrm{smoothmin}(x, x_0, k) = \\frac{x \\cdot \\exp(-k x) + x_0 \\cdot \\exp(-k x_0)}{\\exp(-k x) + \\exp(-k x_0)}
+        \\mathrm{smoothmin}(x, x_0, k) = \\frac{x \\cdot \\exp(-k x) + x_0 \\cdot \\exp(-k x_0)}{\\exp(-k x) + \\exp(-k x_0)}
 
     Args:
         x (torch.Tensor): The input tensor.
@@ -47,7 +47,7 @@ def logistic(x: torch.Tensor, x_0: Union[float, torch.Tensor], k: float = 1E2) -
     Mathematically, the function is defined as:
 
     .. math::
-        \mathrm{logistic}(x, x_0, k) = \\frac{1}{1 + \\exp \\Big( -k \\cdot (x - x_0) \\Big)}
+        \\mathrm{logistic}(x, x_0, k) = \\frac{1}{1 + \\exp \\Big( -k \\cdot (x - x_0) \\Big)}
 
     Args:
         x (torch.Tensor): The input tensor.
