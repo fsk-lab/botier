@@ -38,6 +38,15 @@ dependencies = [
     "pandas",
 ]
 
+[project.optional-dependencies]
+test = [
+    "black",
+    "flake8",
+    "pytest",
+    "pytest-cov",
+    "flake8-pyproject",
+]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
@@ -46,3 +55,24 @@ build-backend = "setuptools.build_meta"
 "Homepage" = "https://www.github.com/fsk-lab/botier"
 "Repository" = "https://www.github.com/fsk-lab/botier"
 "Bug Tracker" = "https://github.com/fsk-lab/botier/issues"
+
+[tool.pytest.ini_options]
+addopts = "--cov=botier --cov-report xml --cov-report html --cov-report term --cov-config=pyproject.toml --color=yes"
+testpaths = "tests/"
+python_files = "test_*.py"
+pythonpath = "."
+
+[tool.coverage.run]
+# branch = true
+source = ["src"]
+omit = ["*tests*", "*__init__.py"]
+command_line = "-m pytest -v"
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.flake8]
+max-line-length = 160

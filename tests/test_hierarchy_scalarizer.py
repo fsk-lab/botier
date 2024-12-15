@@ -1,4 +1,3 @@
-import pytest
 import torch
 from botier import HierarchyScalarizer
 from botier.utils import smoothmin
@@ -14,7 +13,7 @@ def test_hierarchy_scalarizer_forward():
     values = torch.tensor([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]])
     thresholds = torch.tensor([1.5, 2.5, 3.5])
     scalarizer = HierarchyScalarizer(final_objective_idx=2, k=1E2)
-    
+
     result = scalarizer(values, thresholds)
 
     # Compute expected result using smoothmin and logistic functions
