@@ -24,10 +24,10 @@ Installing BoTier
    :height: 2.5ex
    :target: https://pypi.org/project/botier/
 .. |torch-logo| image:: ../_static/pytorch.png
-   :height: 2.5ex
+   :height: 1.75ex
    :target: https://pytorch.org/
 .. |botorch-logo| image:: ../_static/botorch.png
-   :height: 2.5ex
+   :height: 1.75ex
    :target: https://botorch.org/
 
 BoTier is available as a Python package on |pypi-logo| PyPI.
