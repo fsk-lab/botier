@@ -176,7 +176,7 @@ if __name__ == "__main__":
                 # check if any elements in new_x or new_y are NaN
                 if torch.isnan(new_x).any() or torch.isnan(new_y).any():
                     logger.warning(f"NaNs detected in the new data (x: {new_x.flatten()}; y: {new_y.flatten()}). Skipping "
-                                  f"this iteration. Using a random recommendation instead.")
+                                   f"this iteration. Using a random recommendation instead.")
                     new_x, new_y = generate_seed_data(surface, 1, random_seed=iteration)
 
                 x = torch.cat([x, new_x], dim=0)

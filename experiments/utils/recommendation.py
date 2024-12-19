@@ -77,8 +77,7 @@ def _train_surrogate(x: Tensor, y: Tensor, bounds: Tensor) -> SingleTaskGP:
 
     for algorithm in [
         (fit_gpytorch_mll_scipy, {"method": "L-BFGS-B"}),
-        (fit_gpytorch_mll_torch, {}),
-        (fit_gpytorch_mll_scipy, {"method": "Nelder-Mead"})
+        (fit_gpytorch_mll_torch, {})
     ]:
         try:
             fit_gpytorch_mll(mll, optimizer=algorithm[0], optimizer_kwargs=algorithm[1])
@@ -116,8 +115,7 @@ def _train_joint_surrogate(x: Tensor, y: Tensor, bounds: Tensor) -> KroneckerMul
 
     for algorithm in [
         (fit_gpytorch_mll_scipy, {"method": "L-BFGS-B"}),
-        (fit_gpytorch_mll_torch, {}),
-        (fit_gpytorch_mll_scipy, {"method": "Nelder-Mead"})
+        (fit_gpytorch_mll_torch, {})
     ]:
         try:
             fit_gpytorch_mll(mll, optimizer=algorithm[0], optimizer_kwargs=algorithm[1])
