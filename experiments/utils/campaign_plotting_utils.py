@@ -142,8 +142,8 @@ def calculate_confidence_region(
     mean = torch.mean(values, dim=0)  # shape: `budget`
 
     if confidence_interval is None:
-        std = torch.std(values, dim=0)
-        return mean, mean - num_stds * std, mean + num_stds * std
+        std_err = torch.std(values, dim=0) / torch.sqrt(torch.tensor(values.shape[0]))
+        return mean, mean - num_stds * std_err, mean + num_stds * std_err
 
     else:
         lower = torch.quantile(values, 1-confidence_interval, dim=0)
@@ -229,12 +229,13 @@ def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, co
     [x.set_linewidth(0.5) for x in ax.spines.values()]
 
 
-def plot_scalarized_objective(ax, *args, accumulate: bool = True, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
+def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, accumulate: bool = True, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
     """
     Plots the scalarized objective value for each run.
 
     Args:
         ax: The matplotlib axis to plot on
+        objectives: A list of `AuxiliaryObjective` instances
         *args: A list of dictionaries containing the data for each run
         accumulate: True if the maximum value should be accumulated
         confidence_interval: The confidence interval to use for the bounds
@@ -246,7 +247,10 @@ def plot_scalarized_objective(ax, *args, accumulate: bool = True, confidence_int
 
     for run in args:
 
-        scores = torch.load(run.pop("file"))["s"]  # shape: `iterations x budget`
+        data = torch.load(run.pop("file"))
+        scalarizer = HierarchyScalarizationObjective(objectives, normalized_objectives=True)
+        scores = scalarizer(data["y"], data["x"])  # shape: `iterations x budget`
+
         if budget:
             if scores.shape[1] > budget:
                 scores = scores[:, :budget]

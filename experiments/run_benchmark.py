@@ -24,6 +24,7 @@ from botier import HierarchyScalarizationObjective, ObjectiveCalculator
 from utils.recommendation import recommend_new_point, generate_seed_data
 from utils.logging_utils import get_logger
 from reference_methods.penalty_scalarization import PenaltyScalarizationObjective
+from reference_methods.chimera_wrapper import ChimeraWrapper
 from benchmark_problems.emulated_problems import emulated_problems
 from benchmark_problems.analytical_problems import analytical_problems
 
@@ -93,6 +94,14 @@ if __name__ == "__main__":
             "obj_type": HierarchyScalarizationObjective,
             "obj_kwargs": {"normalized_objectives": True, "k": args.k}
         },
+        # Hierarchical Scalarization of Multiple Objectives into a Single Objective Score (using Chimera)
+        # Acquisition Function: Expected Improvement
+        "chimera-ei": {
+            "acqf_type": qExpectedImprovement,
+            "acqf_kwargs": {},
+            "obj_type": ChimeraWrapper,
+            "obj_kwargs": {"normalized_objectives": True, "k": args.k}
+        },
         # Penalty Scalarization of Multiple Objectives into a Single Objective Score
         # Acquisition Function: Expected Improvement
         "penalty-ei": {
@@ -127,6 +136,7 @@ if __name__ == "__main__":
         objectives=objectives,
         **acqf_options[args.strategy]["obj_kwargs"]
     )
+    ref_objective = HierarchyScalarizationObjective(objectives=objectives, normalized_objectives=True, k=args.k)
 
     file_name = results_dir / f"{base_name}.pt"
 
@@ -184,7 +194,7 @@ if __name__ == "__main__":
 
         all_x.append(x), all_y.append(y)
         all_obj.append(acq_objective.calculate_objective_values(y, x, normalize=False))
-        all_s.append(acq_objective(y, x))
+        all_s.append(ref_objective(y, x))
 
         logger.info(f"Completed iteration {iteration+1} / {args.iterations} in {time.time() - start_time:.1f} sec. "
                     f"Saving checkpoint.")
