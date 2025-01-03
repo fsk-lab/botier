@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - develop-docs  # trigger the job on the main branch
+      - main  # trigger the job on the main branch
   pull_request:
     branches:
       - main  # trigger the job on the main branch
