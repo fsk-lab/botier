@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop-docs  # trigger the job on the main branch
+  pull_request:
+    branches:
+      - main  # trigger the job on the main branch
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest  # The OS environment for the job
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'  # Just one version for linting
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install .[test]
+
+    - name: Run flake8
+      run: |
+        source venv/bin/activate
+        flake8 src tests
+
+  test:
+    runs-on: ubuntu-latest  # The OS environment for the job
+
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]  # test on all Python versions 3.8+
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}  # Use the version from the matrix
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install .[test]
+
+    - name: Run tests with pytest
+      run: |
+        source venv/bin/activate
+        python -m pytest tests/

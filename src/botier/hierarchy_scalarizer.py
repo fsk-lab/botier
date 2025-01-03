@@ -1,28 +1,28 @@
 from typing import Optional
 import torch
-from torch import Tensor
 
-from .utils import smoothmin, logistic
+from botier.utils import smoothmin, logistic
 
 
 class HierarchyScalarizer(torch.nn.Module):
     """
     Implementation of a flexible, hierarchy-based scalarizer for scalarizing a set of objective values according to a
-    hierarchy of objectives. The scalarizer applies the hierarchy scalarization relative to threshold values t_i
+    hierarchy of objectives. The scalarizer applies the hierarchy scalarization relative to threshold values :math:`t_i`
     according to
 
-    h(x) = \sum_{i=1}^{N}{min(g_i(x), t_i) \cdot \prod_{j=1}^{i-1}{H(g_j(x)-t_j)}} + f_fin(x) * \prod_{i=1}{N}{H(g_i(x)-t_i)}
+    .. math::
+        h(x) = \\sum_{i=1}^{N}{\\min(g_i(x), t_i) \\cdot \\prod_{j=1}^{i-1}{H(g_j(x)-t_j)}} + f_{\\mathrm{fin}}(x) \\cdot \\prod_{i=1}^{N}{H(g_i(x)-t_i)}
 
-    where H(x) is the Heaviside function. Both the heaviside function and the min function are approximated by
+    where :math:`H(x)` is the Heaviside function. Both the Heaviside function and the min function are approximated by
     continuous, differentiable variants (see model.py for further details).
 
     Returns a reduced tensor of scalarized objective values.
 
     Args:
-        final_objective_idx: [optional] An integer defining which objective in `objectives` should be optimized if the
+        final_objective_idx (int, optional): An integer defining which objective in :code:`objectives` should be optimized if the
                              satisfaction criteria are met for all objectives. Defaults to 0 (i.e. the first objective
                              in the hierarchy).
-        k: [optional] The smoothing factor applied to the smoothened, differentiable versions of the min and Heaviside
+        k (float, optional): The smoothing factor applied to the smoothened, differentiable versions of the min and Heaviside
            functions
     """
     def __init__(
@@ -34,16 +34,16 @@ class HierarchyScalarizer(torch.nn.Module):
         self._final_obj_idx = final_objective_idx
         self._k = k
 
-    def forward(self, values: Tensor, thresholds: Tensor) -> Tensor:
+    def forward(self, values: torch.Tensor, thresholds: torch.Tensor) -> torch.Tensor:
         """
         Implementation of the forward pass.
 
         Args:
-            values: A `... x n_obj`-dim tensor of values to be scalarized
-            thresholds: A `n_obj`-dim tensor of thresholds for each objective.
+            values (torch.Tensor): A :code:`... x n_obj`-dim tensor of values to be scalarized
+            thresholds (torch.Tensor): A :code:`n_obj`-dim tensor of thresholds for each objective.
 
         Returns:
-            Tensor: A `...`-dim Tensor of scalarized objective values.
+            torch.Tensor: A :code:`...`-dim Tensor of scalarized objective values.
         """
         hierarchy_masks, scalarized_objectives = [], []
 
