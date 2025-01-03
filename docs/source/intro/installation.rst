@@ -13,7 +13,7 @@ Supported Python versions
    :height: 2ex
    :target: https://www.python.org/
 
-BoTier requires |py-logo| Python 3.8+.
+BoTier is tested for |py-logo| Python 3.8+.
 
 .. _intro-install-botier:
 
@@ -39,9 +39,8 @@ You can install BoTier by simply running::
 We strongly recommend that you install BoTier in a dedicated virtual environment
 to avoid conflicting with your system packages.
 
-Make sure you have |torch-logo| PyTorch and |botorch-logo| BoTorch installed as well.
-For installing PyTorch, refer to `here <https://pytorch.org/get-started/locally/>`_,
-and for BoTorch, refer to `here <https://botorch.org/docs/getting_started>`_
+BoTier depends on |torch-logo| PyTorch and |botorch-logo| BoTorch. For installing custom versions, refer to the respective package documentations ( `PyTorch <https://pytorch.org/get-started/locally/>`_,
+ `BoTorch <https://botorch.org/docs/getting_started>`_).
 
 
 Troubleshooting

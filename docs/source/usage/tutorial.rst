@@ -29,6 +29,10 @@ We first define the 'auxiliary objectives' that eventually make up the overall o
     ]
     global_objective = HierarchyScalarizationObjective(objectives, k=1E2, normalized_objectives=True)
 
+The first objective is the first model output (index 0) with an absolute threshold of 0.5. The best value is 1.0, and the worst value is -1.0. The second objective is a known value (known=True) that is calculated as the first input parameter (x) with an absolute threshold of 0.0. The best obtainable value is 0.0, and the worst value is 1.0.
+The second objective is only dependent on the input parameters (`known = True`), and is calculated from the input parameter `x` using the function passed as the `calculation` argument.
+For a detailed explanation of the `AuxiliaryObjective` class, refer to the `API documentation <../api_reference/botier.auxiliary_objective>`_.
+
 That is it! Now we can generate some training data
 
 .. code-block:: python
