@@ -1,20 +1,25 @@
 r"""
-The `botier` package provides a flexible framework to express
+The `BoTier` package provides a flexible framework to express
 hierarchical user preferences over both experiment inputs and outputs.
 
-`botier` is a lightweight plug-in for `botorch`, and can be readily
+`BoTier` is a lightweight plug-in for `botorch`, and can be readily
 integrated with the botorch ecosystem for Bayesian Optimization.
 """
 
-from .auxiliary_objective import AuxiliaryObjective
-from .hierarchy_scalarization_objective import HierarchyScalarizationObjective, ObjectiveCalculator
-from .hierarchy_scalarizer import HierarchyScalarizer
+import importlib.metadata as _metadata
 
+from botier.auxiliary_objective import AuxiliaryObjective
+from botier.hierarchy_scalarization_objective import HierarchyScalarizationObjective, ObjectiveCalculator
+from botier.hierarchy_scalarizer import HierarchyScalarizer
+
+__version__ = _metadata.version("botier")
 
 __all__ = [
     "AuxiliaryObjective",
     "HierarchyScalarizationObjective",
+    "ObjectiveCalculator",
     "HierarchyScalarizer",
+    "__version__",
 ]
 
 

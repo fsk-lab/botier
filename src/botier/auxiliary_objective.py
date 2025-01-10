@@ -1,6 +1,5 @@
 from typing import Tuple, Optional, Callable
 import torch
-from torch import Tensor
 
 
 class AuxiliaryObjective(torch.nn.Module):
@@ -8,25 +7,24 @@ class AuxiliaryObjective(torch.nn.Module):
     Class for auxiliary objectives that can be used in
 
     Args:
-        maximize: True if the objective should be maximized, False if it should be minimized.
-        calculation: A callable that computes the value of the auxiliary objective from experiment outputs and inputs.
+        maximize (bool): True if the objective should be maximized, False if it should be minimized.
+        calculation (Callable, optional): A callable that computes the value of the auxiliary objective from experiment outputs and inputs.
                      The function should take the following arguments:
-                        - Y: A `... x m`-dim Tensors of samples (e.g. from a model posterior, in this case, the shape
-                          is `sample_shape x batch_shape x q x m`)
-                        - X: A `...`-dim tensor of inputs. Relevant only if the objective depends on the inputs
-                             explicitly.
-        lower_bound: The lower bound value of the objective. Corresponds to the worst value for maximization problems
+                        - Y: A :code:`... x m`-dim Tensors of samples (e.g. from a model posterior, in this case, the shape
+                          is :code:`sample_shape x batch_shape x q x m`)
+                        - X: A :code:`...`-dim tensor of inputs. Relevant only if the objective depends on the inputs explicitly.
+        lower_bound (float, optional): The lower bound value of the objective. Corresponds to the worst value for maximization problems
                      and the best value for minimization problems. Required in case the objective should be MinMax-
-                     scaled between `worst_value` and `abs_threshold`. All values outside the window [lower_bound,
-                     upper_bound] are clipped to the respective bound.
-        upper_bound: The upper bound value of the objective. Corresponds to the best value for maximization problems and
+                     scaled between :code:`worst_value` and :code:`abs_threshold`. All values outside the window :code:`[lower_bound,
+                     upper_bound]` are clipped to the respective bound.
+        upper_bound (float, optional): The upper bound value of the objective. Corresponds to the best value for maximization problems and
                      the worst value for minimization problems. Required in case the objective should be MinMax-scaled
-                     between `worst_value` and `abs_threshold`, but only `rel_threshold` is provided. During MinMax-
-                     scaling, all values outside the window [lower_bound, upper_bound] are clipped to the respective
+                     between :code:`worst_value` and :code:`abs_threshold`, but only :code:`rel_threshold` is provided. During MinMax-
+                     scaling, all values outside the window :code:`[lower_bound, upper_bound]` are clipped to the respective
                      bound.
-        abs_threshold: An absolute threshold value for the objective.
-        rel_threshold: A threshold value for the objective. Required only if abs_threshold is not provided.
-        output_index: The index of the output dimension of the samples that the objective depends on.
+        abs_threshold (float, optional): An absolute threshold value for the objective.
+        rel_threshold (float, optional): A threshold value for the objective. Required only if :code:`abs_threshold` is not provided.
+        output_index (int, optional): The index of the output dimension of the samples that the objective depends on.
     """
     def __init__(
             self,
@@ -98,20 +96,20 @@ class AuxiliaryObjective(torch.nn.Module):
 
             self.abs_threshold = abs_threshold
 
-    def forward(self, Y: Tensor, X: Optional[Tensor], normalize: bool = True) -> Tensor:
+    def forward(self, Y: torch.Tensor, X: Optional[torch.Tensor], normalize: bool = True) -> torch.Tensor:
         """
         Computes the scalarized auxiliary objective function for the given samples and data points.
 
         Args:
-            Y: A `... x m`-dim Tensor of y values (e.g. from a model posterior, in this case, the
-                     shape is `sample_shape x batch_shape x q x m`)
-            X: A `...`-dim tensor of inputs. Relevant only if the objective depends on the inputs
+            Y (torch.Tensor): A :code:`... x m`-dim Tensor of y values (e.g. from a model posterior, in this case, the
+                     shape is :code:`sample_shape x batch_shape x q x m`)
+            X (torch.Tensor, optional): A :code:`...`-dim tensor of inputs. Relevant only if the objective depends on the inputs
                explicitly.
-            normalize: True if the objective should be MinMax-scalarized returned to a [0, 1] scale, where 0 corresponds
+            normalize (bool): True if the objective should be MinMax-scalarized returned to a [0, 1] scale, where 0 corresponds
                        to the worst possible value and 1 to the satisfaction threshold.
 
         Returns:
-            A `...`-dim tensor of auxiliary objective values.
+            A :code:`...`-dim tensor of auxiliary objective values.
         """
         values = self.function(Y, X)
 

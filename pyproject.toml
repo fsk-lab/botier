@@ -1,0 +1,78 @@
+[project]
+name = "botier"
+version = "1.0.0"
+description = "BoTier: Multi-Objective Bayesian Optimization with Tiered Composite Objectives"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Felix Strieth-Kalthoff", email = "strieth-kalthoff@uni-wuppertal.de"},
+    {name = "Mohammad Haddadnia", email = "mohammad_haddadnia@dfci.harvard.edu"},
+]
+maintainers = [
+    {name = "Felix Strieth-Kalthoff", email = "strieth-kalthoff@uni-wuppertal.de"},
+    {name = "Mohammad Haddadnia", email = "mohammad_haddadnia@dfci.harvard.edu"},
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "torch",
+    "gpytorch",
+    "botorch",
+    "pandas",
+]
+
+[project.optional-dependencies]
+test = [
+    "black",
+    "flake8",
+    "pytest",
+    "pytest-cov",
+    "flake8-pyproject",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+"Homepage" = "https://www.github.com/fsk-lab/botier"
+"Repository" = "https://www.github.com/fsk-lab/botier"
+"Bug Tracker" = "https://github.com/fsk-lab/botier/issues"
+
+[tool.pytest.ini_options]
+addopts = "--cov=botier --cov-report xml --cov-report html --cov-report term --cov-config=pyproject.toml --color=yes"
+testpaths = "tests/"
+python_files = "test_*.py"
+pythonpath = "."
+
+[tool.coverage.run]
+# branch = true
+source = ["src"]
+omit = ["*tests*", "*__init__.py"]
+command_line = "-m pytest -v"
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.flake8]
+max-line-length = 160
