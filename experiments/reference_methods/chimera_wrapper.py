@@ -72,7 +72,7 @@ class ChimeraWrapper(torch.nn.Module):
         chim = Chimera(
             tolerances=thresholds,
             absolutes=[not self._norm for _ in self.objectives],
-            goals=["max" if obj.maximize else "min" for obj in self.objectives],
+            goals=["max" if obj.maximize or self._norm else "min" for obj in self.objectives],
             softness=1.0 / self._k
         )
 
