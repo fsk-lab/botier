@@ -9,7 +9,7 @@
 
 # BOTier: Multi-Objective Bayesian Optimization with Tiered Preferences over Experiment Outcomes and Inputs
 
-Next to the "primary" optimization objectives, optimization problems often contain a series of subordinate objectives, which can be expressed as preferences over either the outputs of an experiment, or the experiment inputs (e.g. to minimize the experimental cost). **BoTier** provides a flexible framework to express hierarchical user preferences over both experiment inputs and outputs. The details are described in XXX. 
+Next to the "primary" optimization objectives, optimization problems often contain a series of subordinate objectives, which can be expressed as preferences over either the outputs of an experiment, or the experiment inputs (e.g. to minimize the experimental cost). **BoTier** provides a flexible framework to express hierarchical user preferences over both experiment inputs and outputs. The details are described in the corresponding paper. 
 
 ```botier```is a lightweight plug-in for ```botorch```, and can be readily integrated with the ```botorch``` ecosystem for Bayesian Optimization. 
 
