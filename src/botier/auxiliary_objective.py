@@ -4,7 +4,12 @@ import torch
 
 class AuxiliaryObjective(torch.nn.Module):
     """
-    Class for auxiliary objectives that can be used in
+    Class for auxiliary objectives that can be used for creating composite objectives for Multi-Objective Bayesian
+    Optimization. The class provides a callable that computes the auxiliary objective from the inputs and outputs of
+    an experiment in an auto-differentiable way.
+
+    Provides automatic handling of MinMax-scaling of the objective values to a [0, 1] range, which is very useful when
+    defining differentiable composite_objectives.
 
     Args:
         maximize (bool): True if the objective should be maximized, False if it should be minimized.
@@ -122,9 +127,6 @@ class AuxiliaryObjective(torch.nn.Module):
             else:
                 best_value = (self.best_value - self.worst_value) / (self.threshold - self.worst_value)
                 values = torch.clamp(values, 0.0, best_value)
-
-        else:
-            pass  # ATTN: Do we need to invert the objective in case it is a minimization objective?
 
         return values
 

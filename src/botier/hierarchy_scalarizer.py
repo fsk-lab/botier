@@ -14,7 +14,7 @@ class HierarchyScalarizer(torch.nn.Module):
         h(x) = \\sum_{i=1}^{N}{\\min(g_i(x), t_i) \\cdot \\prod_{j=1}^{i-1}{H(g_j(x)-t_j)}} + f_{\\mathrm{fin}}(x) \\cdot \\prod_{i=1}^{N}{H(g_i(x)-t_i)}
 
     where :math:`H(x)` is the Heaviside function. Both the Heaviside function and the min function are approximated by
-    continuous, differentiable variants (see model.py for further details).
+    continuous, differentiable variants (see utils.py for further details).
 
     Returns a reduced tensor of scalarized objective values.
 

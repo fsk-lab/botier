@@ -4,7 +4,7 @@
 BoTier Tutorial
 ===============
 
-The following code snippet shows a minimal example of using the hierarchical scalarization objective.
+The following code snippet shows a minimal example of using BoTier's hierarchical scalarization as a composite objective.
 
 In this example, our primary goal is to maximize the :math:`\sin(2 \pi x)` function to a value of min. 0.5. If this is satisfied, the value of x should be minimized.
 

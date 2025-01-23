@@ -2,31 +2,16 @@ import copy
 import torch
 from torch import Tensor
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
 
 from botier import AuxiliaryObjective, HierarchyScalarizationObjective
 
-########################################################################################################################
+
 LINESTYLES = [
     (0, ()),
     (0, (5, 1)),
     (0, (1, 1)),
     (0, (3, 1, 1, 1))
 ]
-
-BLUE = "#24658D"
-DARK_GREEN = "#388968"
-LIGHT_GREEN = "#8FB140"
-YELLOW = "#CAD849"
-TURQUOISE = "#419EB0"
-OCHRE = "#D17B0F"
-PEACH = "#F6BE9A"
-GRAY = "#a0a0a0"
-
-font_entry = fm.FontEntry(fname="/Users/felix/Library/Fonts/Lato-Light.ttf", name="Lato")
-fm.fontManager.ttflist.append(font_entry)
-plt.rcParams['font.family'] = "Lato"
-########################################################################################################################
 
 
 def calculate_objective_values(

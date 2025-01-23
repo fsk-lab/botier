@@ -1,4 +1,0 @@
-First Round of Test Experiments:
-- Test just one surface: DTLZ5 Surface
-- Compare: Strategies botier-ei and penalty-ei, both with prior and posterior scaling
-- Default settings: k = 100, budget = 50, iterations = 50, seed_budget = 1

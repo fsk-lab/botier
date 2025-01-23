@@ -118,6 +118,6 @@ def plot_function_with_objectives(
     # save the plot
     fig.tight_layout()
 
-    file_name = file_name.replace(".png", f"_{100 * satisfaction_fraction:.2f}%.png")
+    # file_name = file_name.replace(".png", f"_{100 * satisfaction_fraction:.2f}%.png")
 
     plt.savefig(file_name, dpi=600, transparent=True)
