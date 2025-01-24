@@ -6,8 +6,9 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Felix Strieth-Kalthoff", email = "strieth-kalthoff@uni-wuppertal.de"},
     {name = "Mohammad Haddadnia", email = "mohammad_haddadnia@dfci.harvard.edu"},
+    {name = "Felix Strieth-Kalthoff", email = "strieth-kalthoff@uni-wuppertal.de"},
+    {name = "Leonie Grashoff", email = "grashoff@uni-wuppertal.de"},
 ]
 maintainers = [
     {name = "Felix Strieth-Kalthoff", email = "strieth-kalthoff@uni-wuppertal.de"},
@@ -33,7 +34,7 @@ classifiers = [
 
 dependencies = [
     "torch",
-    "gpytorch",
+    # "gpytorch",
     "botorch",
     "pandas",
 ]
@@ -55,6 +56,9 @@ build-backend = "setuptools.build_meta"
 "Homepage" = "https://www.github.com/fsk-lab/botier"
 "Repository" = "https://www.github.com/fsk-lab/botier"
 "Bug Tracker" = "https://github.com/fsk-lab/botier/issues"
+
+[tool.setuptools]
+license-files = ["LICENCSE"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=botier --cov-report xml --cov-report html --cov-report term --cov-config=pyproject.toml --color=yes"
