@@ -9,7 +9,7 @@
 .. image:: https://readthedocs.org/projects/botier/badge/?version=latest
        :target: http://botier.readthedocs.io/?badge=latest
        :alt: Docs status
-.. image:: https://github.com/fsk-lab/botier/workflows/Test/badge.svg
+.. image:: https://github.com/fsk-lab/botier/actions/workflows/ci.yml/badge.svg
        :target: https://github.com/fsk-lab/botier/actions
        :alt: GitHub CI Action status
 .. image:: https://img.shields.io/pypi/v/botier.svg
