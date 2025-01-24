@@ -214,7 +214,7 @@ def recommend_new_point(
         acq_objective: Union[MCAcquisitionObjective, MCMultiOutputObjective],
         bounds: torch.Tensor,
         joint_model: bool = False,
-        prior_scaling: bool = False,
+        black_box_objective: bool = False,
         num_posterior_samples: int = 512,
         random_seed: int = 42
 ) -> torch.Tensor:
@@ -234,7 +234,7 @@ def recommend_new_point(
         acq_objective: The acquisition objective to be used.
         bounds: The bounds of the input space (shape: `2 x dim`).
         joint_model: If True, a joint GP model is trained on the input-output data.
-        prior_scaling: If True, the objective values (rather than the experiment outcomes) are used for training.
+        black_box_objective: If True, the objective values (rather than the experiment outcomes) are used for training.
         num_posterior_samples: The number of posterior samples to draw for the acquisition function.
         random_seed: The random seed to use for the Sobol sequence.
 
@@ -248,7 +248,7 @@ def recommend_new_point(
 
     try:
         # Train the surrogate model and instantiate the acquisition function
-        if prior_scaling is True:
+        if black_box_objective is True:
             if joint_model is True:
                 surrogate = _train_joint_surrogate(x_train, obj_values, bounds)
             else:
