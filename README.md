@@ -91,4 +91,4 @@ For more detailed usage examples, see ```examples```.
 
 ## Contributors
 
-Felix Strieth-Kalthoff ([@felix-s-k](https://github.com/felix-s-k)), Mohammad Haddadnia ([@mohaddadnia](https://github.com/Mohaddadnia)) 
+Felix Strieth-Kalthoff ([@felix-s-k](https://github.com/felix-s-k)), Mohammad Haddadnia ([@mohaddadnia](https://github.com/Mohaddadnia)), Leonie Grashoff ([@lgrashoff](https://github.com/lgrashoff))
