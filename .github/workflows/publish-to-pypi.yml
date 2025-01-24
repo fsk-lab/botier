@@ -3,10 +3,10 @@ name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 on:
   push:
     branches:
-      - main  # trigger the job on the main branch
+      - publish  # trigger the job on the main branch
   pull_request:
     branches:
-      - main  # trigger the job on the main branch
+      - publish  # trigger the job on the main branch
 
 jobs:
   build:
