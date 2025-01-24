@@ -8,7 +8,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/1234.56789)
 
-# BOTier: Multi-Objective Bayesian Optimization with Tiered Preferences over Experiment Outcomes and Inputs
+# BOTier: Multi-Objective Bayesian Optimization with Tiered Composite Objectives
 
 Next to the primary optimization objectives, scientific optimization problems often contain a series of subordinate objectives, which can be expressed as preferences over either the outputs of an experiment, or the experiment inputs (e.g. to minimize the experimental cost). **BoTier** provides a flexible composite objective to express hierarchical user preferences over both experiment inputs and outputs. The details are described in the corresponding paper. 
 
