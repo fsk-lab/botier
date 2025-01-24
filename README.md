@@ -1,5 +1,6 @@
 [![workflow](https://github.com/fsk-lab/botier/actions/workflows/ci.yml/badge.svg)](https://github.com/fsk-lab/botier/actions/workflows/ci.yml/badge.svg)
 [![coverage](https://img.shields.io/codecov/c/github/fsk-lab/botier)](https://img.shields.io/codecov/c/github/fsk-lab/botier)
+[![Docs](https://readthedocs.org/projects/botier/badge/?version=latest)](https://readthedocs.org/projects/botier/)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/botier?label=PyPI)](https://pypi.org/project/botier/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
