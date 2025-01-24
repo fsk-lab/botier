@@ -234,7 +234,7 @@ def recommend_new_point(
         acq_objective: The acquisition objective to be used.
         bounds: The bounds of the input space (shape: `2 x dim`).
         joint_model: If True, a joint GP model is trained on the input-output data.
-        black_box_objective: If True, the objective values (rather than the experiment outcomes) are used for training.
+        black_box_objective: If True, uses a black-box objective (rather than a composite one) for the acquisition function.
         num_posterior_samples: The number of posterior samples to draw for the acquisition function.
         random_seed: The random seed to use for the Sobol sequence.
 

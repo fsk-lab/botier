@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-s", "--strategy", type=str, default="botier-ei", help="Acquisition function to use.")
 
-    parser.add_argument("--black_box_objective", action="store_true", default=False, help="Whether to train the surrogate on the score (True) or on individual objectives (False).")
+    parser.add_argument("--black_box_objective", action="store_true", default=False, help="Whether to use a black-box objective (True) or a composite objective (False).")
     parser.add_argument("--joint_model", action="store_true", default=False, help="Whether to use a single multi-output model (True) or separate single-output models (False).")
 
     parser.add_argument("--restart", action="store_true", default=False, help="Whether to restart the benchmark from scratch (True) or continue from the last checkpoint (False).")
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     logger = get_logger("A", logfile=results_dir / f"{base_name}.log")
 
     logger.info(f"Running benchmark for problem: {args.problem} with the following settings:")
-    logger.info(f"    {'Black_Box' if args.black_box_objective else 'Composite'} objective")
+    logger.info(f"    {'Black Box' if args.black_box_objective else 'Composite'} objective")
     logger.info(f"    {'Joint Model' if args.joint_model else 'Multiple Single-Task Models'}")
     logger.info(f"    Strategy: {args.strategy}")
     logger.info(f"    k: {args.k:.0f}")
