@@ -105,8 +105,8 @@ def plot_function_with_objectives(
         # scatter the satisfactory points in red on top of the heatmap
         ax.scatter(satisfactory_points[:, i], satisfactory_points[:, j], color="red", s=0.5, zorder=9, alpha=0.5)
 
-        ax.set_xlabel(f"Objective {i}")
-        ax.set_ylabel(f"Objective {j}")
+        ax.set_xlabel(f"Objective {i + 1}")
+        ax.set_ylabel(f"Objective {j + 1}")
 
         idx += 1
 

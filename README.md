@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 
-[![arXiv](https://img.shields.io/badge/arXiv-1234.56789-b31b1b.svg)](https://arxiv.org/abs/1234.56789)
+[![arXiv](https://img.shields.io/badge/arXiv-2501.15554-b31b1b.svg)](https://arxiv.org/abs/2501.15554)
 
 # BOTier: Multi-Objective Bayesian Optimization with Tiered Preferences over Experiment Outcomes and Inputs
 
@@ -87,7 +87,22 @@ plt.legend()
 plt.show()
 ```
 
-For more detailed usage examples, see ```examples```.
+For a more detailed tutorial on how to use BoTier in the context of Bayesian Optimization with BoTorch, please refer to the [package documentation](https://botier.readthedocs.io/en/latest/usage/tutorial.html).
+
+## Citation
+
+If you use BoTier in your research, please cite the corresponding paper:
+
+```
+@misc{haddadnia2025botier,
+  title={BOTier: Multi-Objective Bayesian Optimization with Tiered Composite Objectives},
+  author={Haddadnia, Mohammad and Grashoff, Leonie and Strieth-Kalthoff, Felix},
+  year={2025},
+  eprint={2501.15554},
+  archivePrefix={arXiv},
+  doi={10.48550/arXiv.2501.15554}
+}
+```
 
 ## Contributors
 
