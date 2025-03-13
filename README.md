@@ -1,5 +1,6 @@
 [![workflow](https://github.com/fsk-lab/botier/actions/workflows/ci.yml/badge.svg)](https://github.com/fsk-lab/botier/actions/workflows/ci.yml/badge.svg)
 [![coverage](https://img.shields.io/codecov/c/github/fsk-lab/botier)](https://img.shields.io/codecov/c/github/fsk-lab/botier)
+[![Docs](https://readthedocs.org/projects/botier/badge/?version=latest)](https://botier.readthedocs.io/en/latest/)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/botier?label=PyPI)](https://pypi.org/project/botier/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,7 +8,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-2501.15554-b31b1b.svg)](https://arxiv.org/abs/2501.15554)
 
-# BOTier: Multi-Objective Bayesian Optimization with Tiered Preferences over Experiment Outcomes and Inputs
+# BOTier: Multi-Objective Bayesian Optimization with Tiered Composite Objectives
 
 Next to the primary optimization objectives, scientific optimization problems often contain a series of subordinate objectives, which can be expressed as preferences over either the outputs of an experiment, or the experiment inputs (e.g. to minimize the experimental cost). **BoTier** provides a flexible composite objective to express hierarchical user preferences over both experiment inputs and outputs. The details are described in the corresponding paper. 
 
@@ -106,4 +107,4 @@ If you use BoTier in your research, please cite the corresponding paper:
 
 ## Contributors
 
-Felix Strieth-Kalthoff ([@felix-s-k](https://github.com/felix-s-k)), Mohammad Haddadnia ([@mohaddadnia](https://github.com/Mohaddadnia)) 
+Felix Strieth-Kalthoff ([@felix-s-k](https://github.com/felix-s-k)), Mohammad Haddadnia ([@mohaddadnia](https://github.com/Mohaddadnia)), Leonie Grashoff ([@lgrashoff](https://github.com/lgrashoff))
