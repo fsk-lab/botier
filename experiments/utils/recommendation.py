@@ -9,8 +9,6 @@ torch.set_default_dtype(torch.float64)
 from torch.quasirandom import SobolEngine
 from gpytorch.mlls import ExactMarginalLogLikelihood
 
-from scipy.optimize import differential_evolution
-
 # Botorch imports
 from botorch.acquisition.monte_carlo import MCAcquisitionObjective, MCAcquisitionFunction
 from botorch.acquisition.multi_objective.monte_carlo import MCMultiOutputObjective
@@ -180,15 +178,9 @@ def _optimize_botorch_acqf(acqf: MCAcquisitionFunction, bounds: torch.Tensor, ma
     # optimize the acqf with some different fallback methods in case the first one fails
     optim_kwargs = {"bounds": bounds_scaled, "q": 1, "num_restarts": 10, "raw_samples": 1024}
 
-    def differential_evolution_fallback(fun, x0, args, jac, hess, hessp, bounds, constraints, callback, **kwargs):
-        """Wrapper for scipy's differential evolution optimizer as a fallback in case the gradient optimizers fail."""
-        return differential_evolution(func=fun, bounds=bounds, constraints=constraints, x0=x0, args=args,
-                                      callback=callback, **kwargs)
-
     optimizers = [
         {"gen_candidates": gen_candidates_scipy, "options": {"method": "L-BFGS-B"}},
-        {"gen_candidates": gen_candidates_torch, "options": {}},
-        {"gen_candidates": gen_candidates_scipy, "options": {"method": differential_evolution_fallback, "with_grad": False}},
+        {"gen_candidates": gen_candidates_torch, "options": {}}
     ]
 
     for optimizer in optimizers:

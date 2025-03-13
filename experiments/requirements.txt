@@ -1,0 +1,7 @@
+# The following packages are required to run all experiments specified in the `experiments` directory.
+botier==1.0.0
+pandas>=1.5.0
+scikit-learn>=1.5.0
+matplotlib>=3.9.0
+tqdm>=4.0.0
+matter-chimera==1.0
