@@ -33,7 +33,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "botorch>=0.10.0",
+    "botorch>=0.8.0",
 ]
 
 [project.optional-dependencies]
