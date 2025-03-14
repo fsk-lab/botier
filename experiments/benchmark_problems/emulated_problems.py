@@ -290,7 +290,7 @@ emulated_problems["Suzuki"] = {
             calculation=lambda y, x: x[..., 0],
             upper_bound=suzuki.bounds[1][0],
             lower_bound=suzuki.bounds[0][0],
-            abs_threshold=85,
+            abs_threshold=86,
         )
     ],
 }
