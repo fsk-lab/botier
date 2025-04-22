@@ -102,6 +102,7 @@ def calculate_satisfaction_counts(
 
 def calculate_confidence_region(
         values: Tensor,
+        show_median: bool = False,
         confidence_interval: float = None,
         num_stds: float = 1.0
 ) -> tuple[Tensor, Tensor, Tensor]:
@@ -115,16 +116,21 @@ def calculate_confidence_region(
 
     Args:
         values: A tensor of values (shape `iterations x budget`)
+        show_median: True if the median should be shown instead of the mean
         confidence_interval: The confidence interval to use for the bounds
         num_stds: The number of standard deviations to use for the bounds
 
     Returns:
-        Tensor: The mean of the confidence region (shape `budget`)
+        Tensor: The mean or median of the confidence region (shape `budget`)
         Tensor: The lower bound of the confidence region (shape `budget`)
         Tensor: The upper bound of the confidence region (shape `budget`)
     """
     values = values.double().squeeze(-1)  # shape: `iterations x budget`
-    mean = torch.mean(values, dim=0)  # shape: `budget`
+
+    if show_median:
+        mean = torch.median(values, dim=0).values  # shape: `budget`
+    else:
+        mean = torch.mean(values, dim=0)  # shape: `budget`
 
     if confidence_interval is None:
         std_err = torch.std(values, dim=0) / torch.sqrt(torch.tensor(values.shape[0]))
@@ -174,7 +180,7 @@ def plot_satisfaction_likelihoods(ax, objectives: list[AuxiliaryObjective], *arg
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.1f}"))
 
 
-def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
+def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, show_median: bool = False, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
     """
     Plots the likelihood of satisfaction for all objectives for each run.
 
@@ -182,6 +188,7 @@ def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, co
         ax: The matplotlib axis to plot on
         objectives: A list of `AuxiliaryObjective` instances
         *args: A list of dictionaries containing the data for each run
+        show_median: True if the median should be shown instead of the mean
         confidence_interval: The confidence interval to use for the bounds
         num_stds: The number of standard deviations to use for the bounds
         budget: The maximum number of evaluations to consider
@@ -195,7 +202,7 @@ def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, co
 
         for i in range(len(objectives)):
             counts = calculate_satisfaction_counts(obj_values, objectives[:i+1], normalize=True)
-            mean, lower, upper = calculate_confidence_region(counts, confidence_interval, num_stds)
+            mean, lower, upper = calculate_confidence_region(counts, show_median, confidence_interval, num_stds)
 
             if i > 0:
                 run.pop("label", None)
@@ -214,7 +221,7 @@ def plot_satisfaction_counts(ax, objectives: list[AuxiliaryObjective], *args, co
     [x.set_linewidth(0.5) for x in ax.spines.values()]
 
 
-def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, accumulate: bool = True, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
+def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, accumulate: bool = True, show_median: bool = False, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
     """
     Plots the scalarized objective value for each run.
 
@@ -223,6 +230,7 @@ def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, a
         objectives: A list of `AuxiliaryObjective` instances
         *args: A list of dictionaries containing the data for each run
         accumulate: True if the maximum value should be accumulated
+        show_median: True if the median should be shown instead of the mean
         confidence_interval: The confidence interval to use for the bounds
         num_stds: The number of standard deviations to use for the bounds
         budget: The maximum number of evaluations to consider
@@ -243,7 +251,7 @@ def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, a
         if accumulate:
             scores = torch.cummax(scores, dim=1).values  # shape: `iterations x budget`
 
-        mean, lower, upper = calculate_confidence_region(scores, confidence_interval, num_stds)
+        mean, lower, upper = calculate_confidence_region(scores, show_median, confidence_interval, num_stds)
 
         ax.plot(torch.arange(mean.shape[0]).numpy(), mean.numpy(), **run)
         run.pop("label", None)
@@ -261,7 +269,7 @@ def plot_scalarized_objective(ax, objectives: list[AuxiliaryObjective], *args, a
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.1f}"))
 
 
-def plot_objective_at_optimum(ax, objectives: list[AuxiliaryObjective], obj_idx: int, *args, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
+def plot_objective_at_optimum(ax, objectives: list[AuxiliaryObjective], obj_idx: int, *args, show_median: bool = False, confidence_interval: float = None, num_stds: float = 1.0, budget: int = None, show_labels: bool = True):
     """
     For each run, identifies the best data point according to the scalarized objective function, and plots the value of
     the specified objective at that point.
@@ -271,6 +279,7 @@ def plot_objective_at_optimum(ax, objectives: list[AuxiliaryObjective], obj_idx:
         objectives: A list of `AuxiliaryObjective` instances
         obj_idx: The index of the objective to plot
         *args: A list of dictionaries containing the data for each run
+        show_median: True if the median should be shown instead of the mean
         confidence_interval: The confidence interval to use for the bounds
         num_stds: The number of standard deviations to use for the bounds
         budget: The maximum number of evaluations to consider
@@ -293,7 +302,7 @@ def plot_objective_at_optimum(ax, objectives: list[AuxiliaryObjective], obj_idx:
         optimum_indices = torch.cummax(scores, dim=1).indices  # shape: `iterations x budget`
         optimum_values = torch.gather(obj_values[..., obj_idx], 1, optimum_indices)  # shape: `iterations x budget`
 
-        mean, lower, upper = calculate_confidence_region(optimum_values, confidence_interval, num_stds)
+        mean, lower, upper = calculate_confidence_region(optimum_values, show_median, confidence_interval, num_stds)
 
         ax.plot(torch.arange(mean.shape[0]).numpy(), mean.numpy(), **run)
         run.pop("label", None)
