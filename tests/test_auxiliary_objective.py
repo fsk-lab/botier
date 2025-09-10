@@ -45,17 +45,17 @@ def test_auxiliary_objective_initialization():
         # Should raise ValueError because upper bound is less than lower bound
         AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=0.0, lower_bound=1.0, abs_threshold=0.5)
 
-    # Test with maximize=True
+    # Test with abs threshold
     aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=1.0, lower_bound=0.0, abs_threshold=0.5)
     assert aux_obj.abs_threshold == 0.5
-    assert aux_obj.best_value == 1.0
-    assert aux_obj.worst_value == 0.0
+    assert aux_obj.lower_bound == 0.0
+    assert aux_obj.upper_bound == 1.0
 
-    # Test with maximize=False
-    aux_obj = AuxiliaryObjective(maximize=False, calculation=lambda y, x: y[..., 0] + x, upper_bound=1.0, lower_bound=0.0, abs_threshold=0.5)
-    assert aux_obj.abs_threshold == 0.5
-    assert aux_obj.best_value == 0.0
-    assert aux_obj.worst_value == 1.0
+    # Test with rel threshold
+    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=2.0, lower_bound=0.0, rel_threshold=0.5)
+    assert torch.isclose(torch.tensor(aux_obj.abs_threshold), torch.tensor(1.0))
+    assert aux_obj.lower_bound == 0.0
+    assert aux_obj.upper_bound == 2.0
 
     # Test with output_index
     aux_obj = AuxiliaryObjective(maximize=True,  calculation=None, output_index=-1, upper_bound=1.0, lower_bound=0.0, abs_threshold=0.5)
@@ -65,23 +65,26 @@ def test_auxiliary_objective_initialization():
 
 def test_auxiliary_objective_forward():
     Y = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
-    X = torch.tensor([1.0, 2.0])
-    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, abs_threshold=2.0)
+    X = torch.tensor([2.0, 2.0])
+    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, abs_threshold=3.5)
     result = aux_obj(Y, X)
-    expected = torch.tensor([2.0, 5.0])
+    expected = torch.tensor([0., 4.])
     assert torch.allclose(result, expected), f"Expected {expected}, but got {result}"
 
-    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=4.0, lower_bound=0.0, rel_threshold=0.5)
+    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=4.5, lower_bound=2.0, rel_threshold=0.5)
     result = aux_obj(Y, X, normalize=True)
-    expected = torch.tensor([1.0, 2.0])
+    expected = torch.tensor([0.8, 2.0])
     assert torch.allclose(result, expected), f"Expected {expected}, but got {result}"
-
-
-def test_auxiliary_objective_bounds():
-    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=1.0, lower_bound=0.0, abs_threshold=0.5)
-    assert aux_obj.bounds == (0.0, 1.0)
 
 
 def test_auxiliary_objective_threshold():
     aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=1.0, lower_bound=0.0, abs_threshold=0.5)
     assert aux_obj.threshold == 0.5
+
+
+def test_auxiliary_objective_normalizable():
+    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, upper_bound=1.0, lower_bound=0.0, rel_threshold=0.5)
+    assert aux_obj.normalizable is True
+
+    aux_obj = AuxiliaryObjective(maximize=True, calculation=lambda y, x: y[..., 0] + x, abs_threshold=0.5)
+    assert aux_obj.normalizable is False

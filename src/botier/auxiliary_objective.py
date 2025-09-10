@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Callable
+from typing import Optional, Callable
 import torch
 
 
@@ -8,8 +8,9 @@ class AuxiliaryObjective(torch.nn.Module):
     Optimization. The class provides a callable that computes the auxiliary objective from the inputs and outputs of
     an experiment in an auto-differentiable way.
 
-    Provides automatic handling of MinMax-scaling of the objective values to a [0, 1] range, which is very useful when
-    defining differentiable composite_objectives.
+    Returns a modified tensor of objective values that can be used for calculating hierarchical acquisition functions.
+    The values of the auxiliary objective are always non-negative, with 0 corresponding to the worst possible value. The
+    values can be optionally scaled to the [0, 1]-interval (with 1 being the satisfaction threshold).
 
     Args:
         maximize (bool): True if the objective should be maximized, False if it should be minimized.
@@ -57,53 +58,42 @@ class AuxiliaryObjective(torch.nn.Module):
         if upper_bound is not None and lower_bound is not None:
             if upper_bound < lower_bound:
                 raise ValueError("The upper bound must be greater than the lower bound.")
-            if maximize is True:
-                self.best_value, self.worst_value = upper_bound, lower_bound
-            else:
-                self.best_value, self.worst_value = lower_bound, upper_bound
+            self.lower_bound, self.upper_bound = lower_bound, upper_bound
         else:
-            self.best_value, self.worst_value = None, None
+            self.lower_bound, self.upper_bound = None, None
 
-        # if `abs_threshold` is not provided, the threshold is calculated from the relative threshold and the best and
-        # worst values
+        # if `abs_threshold` is not provided, the threshold is calculated from the relative threshold and the bounds
         if abs_threshold is None:
             if rel_threshold is None:
                 raise ValueError("Either an absolute or a relative satisfaction threshold must be given for an "
                                  "objective.")
-            if self.best_value is None or self.worst_value is None:
-                raise ValueError("If only a relative threshold (instead of an absolute threshold) is provided, the best"
-                                 " and worst values need to be given, too")
+            if self.upper_bound is None or self.lower_bound is None:
+                raise ValueError("If only a relative threshold (instead of an absolute threshold) is provided, the "
+                                 "upper and lower bounds of the objective must be given as well.")
             if rel_threshold < 0.0 or rel_threshold > 1.0:
                 raise ValueError("The relative satisfaction threshold must be between 0 and 1.")
-            self.abs_threshold = self.worst_value + rel_threshold * (self.best_value - self.worst_value)
-            self.normalizable = True
-
-        # if `abs_threshold` is provided, the threshold is set to this value after checking compatibility with
-        # the best and worst values
-        else:
-            if self.best_value is not None:
-                if maximize is True and abs_threshold < self.worst_value:
-                    raise ValueError("For maximization problems, the satisfaction threshold must be greater than the "
-                                     "worst possible value.")
-                elif maximize is False and abs_threshold > self.worst_value:
-                    raise ValueError("For minimization problems, the satisfaction threshold must be smaller than the "
-                                     "worst possible value.")
-                self.normalizable = True
+            if self.maximize:
+                self.abs_threshold = self.lower_bound + rel_threshold * (self.upper_bound - self.lower_bound)
             else:
-                self.normalizable = False
-            if self.best_value is not None:
-                if maximize is True and abs_threshold > self.best_value:
-                    raise ValueError("For maximization problems, the satisfaction threshold must be smaller than the "
-                                     "best possible value.")
-                elif maximize is False and abs_threshold < self.best_value:
-                    raise ValueError("For minimization problems, the satisfaction threshold must be greater than the "
-                                     "best possible value.")
+                self.abs_threshold = self.upper_bound - rel_threshold * (self.upper_bound - self.lower_bound)
+
+        # if `abs_threshold` is provided, the threshold is set after checking compatibility with the bounds
+        else:
+            if self.normalizable:
+                if not (self.lower_bound <= abs_threshold <= self.upper_bound):
+                    raise ValueError("The satisfaction threshold must be within the provided lower and upper bounds.")
 
             self.abs_threshold = abs_threshold
 
     def forward(self, Y: torch.Tensor, X: Optional[torch.Tensor], normalize: bool = True) -> torch.Tensor:
         """
-        Computes the scalarized auxiliary objective function for the given samples and data points.
+        Computes the scalarized auxiliary objective function for the given samples and data points. Automatically
+        handles the optimization direction so that the resulting values can be treated as an optimization problem.
+        Returns strictly positive values which can be used for additive scalarization functions.
+
+        If `normalize` is True, it linearly transforms the data such that the worst possible value corresponds to 0, and
+        the satisfaction threshold corresponds to 1. If `normalize` is False, it linearly transforms the data such that
+        the worst possible value corresponds to 0, and the original value range is preserved.
 
         Args:
             Y (torch.Tensor): A :code:`... x m`-dim Tensor of y values (e.g. from a model posterior, in this case, the
@@ -118,28 +108,33 @@ class AuxiliaryObjective(torch.nn.Module):
         """
         values = self.function(Y, X)
 
-        # Performs a MinMax normalization
-        if normalize and self.normalizable:
-            values = (values - self.worst_value) / (self.threshold - self.worst_value)
-
-            if self.best_value is None:
-                values = torch.clamp(values, 0.0)
+        if normalize:
+            if self.normalizable:
+                best, worst = (self.upper_bound, self.lower_bound) if self.maximize else (self.lower_bound, self.upper_bound)
             else:
-                best_value = (self.best_value - self.worst_value) / (self.threshold - self.worst_value)
-                values = torch.clamp(values, 0.0, best_value)
+                upper, lower = values.flatten().max().item(), values.flatten().min().item()
+                best, worst = (upper, lower) if self.maximize else (lower, upper)
 
-        return values
+            # apply MinMax scalarization, and clamp the values out of the provided value range
+            values_scaled = (values - worst) / (self.threshold - worst)
+            best_scaled = (best - worst) / (self.threshold - worst)
+            values_scaled = torch.clamp(values_scaled, 0.0, best_scaled)
 
-    @property
-    def bounds(self) -> Tuple[float, float]:
-        """
-        Provides the bounds of the objective as a Tuple of floats.
+        else:
+            values_transformed = values if self.maximize else -values
 
-        Returns:
-            float: Lower bound (i.e. the "worst" possible value)
-            float: Upper bound (i.e. the "best" possible value).
-        """
-        return self.worst_value, self.best_value
+            if self.normalizable:
+                if self.maximize:
+                    values_scaled = values_transformed - self.lower_bound
+                    values_scaled = torch.clamp(values_scaled, 0.0, self.upper_bound - self.lower_bound)
+                else:
+                    values_scaled = values_transformed + self.upper_bound
+                    values_scaled = torch.clamp(values_scaled, 0.0, self.lower_bound + self.upper_bound)
+            else:
+                lower_transformed = values_transformed.flatten().min().item()
+                values_scaled = values_transformed - lower_transformed
+
+        return values_scaled
 
     @property
     def threshold(self) -> float:
@@ -147,3 +142,10 @@ class AuxiliaryObjective(torch.nn.Module):
         Returns the absolute satisfaction threshold value of the objective.
         """
         return self.abs_threshold
+
+    @property
+    def normalizable(self) -> bool:
+        """
+        Returns True if the objective can be MinMax-normalized, i.e. if both the upper and lower bounds are provided.
+        """
+        return self.lower_bound is not None and self.upper_bound is not None

@@ -63,7 +63,7 @@ class HierarchyScalarizer(torch.nn.Module):
         # do the same for the final objective (i.e. the one that should be optimized if all thresholds are met)
         hierarchy_mask = torch.stack(hierarchy_masks, dim=-1)  # shape: `... x idx`
         hierarchy_mask = torch.prod(hierarchy_mask, dim=-1)  # shape: `...`
-        final_objective = hierarchy_mask * values[..., self._final_obj_idx]  # shape: `...`
+        final_objective = hierarchy_mask * (values[..., self._final_obj_idx] - thresholds[self._final_obj_idx])  # shape: `...`
         scalarized_objectives.append(final_objective)
 
         # Sum the scalarized objectives along the `num_objectives` dimension
