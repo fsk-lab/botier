@@ -101,24 +101,17 @@ class AuxiliaryObjective(torch.nn.Module):
         """
         values = self.function(Y, X)
 
-        # Performs a MinMax normalization
-        if self.maximize:
-            best_value, worst_value = self.upper_bound, self.lower_bound
+        if self.normalizable and normalize:
+            best, worst = (self.upper_bound, self.lower_bound) if self.maximize else (self.lower_bound, self.upper_bound)
         else:
-            best_value, worst_value = self.lower_bound, self.upper_bound
+            upper, lower = values.flatten().max().item(), values.flatten().min().item()
+            best, worst = (upper, lower) if self.maximize else (lower, upper)
 
+        values_scaled = (values - worst) / (self.threshold - worst)
+        best_scaled = (best - worst) / (self.threshold - worst)
+        values_scaled = torch.clamp(values_scaled, 0.0, best_scaled)
 
-
-        if normalize and self.normalizable:
-            values = (values - self.worst_value) / (self.threshold - self.worst_value)
-
-            if self.best_value is None:
-                values = torch.clamp(values, 0.0)
-            else:
-                best_value = (self.best_value - self.worst_value) / (self.threshold - self.worst_value)
-                values = torch.clamp(values, 0.0, best_value)
-
-        return values
+        return values_scaled
 
     @property
     def threshold(self) -> float:
