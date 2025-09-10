@@ -57,47 +57,30 @@ class AuxiliaryObjective(torch.nn.Module):
         if upper_bound is not None and lower_bound is not None:
             if upper_bound < lower_bound:
                 raise ValueError("The upper bound must be greater than the lower bound.")
-            if maximize is True:
-                self.best_value, self.worst_value = upper_bound, lower_bound
-            else:
-                self.best_value, self.worst_value = lower_bound, upper_bound
+            self.lower_bound, self.upper_bound = lower_bound, upper_bound
         else:
-            self.best_value, self.worst_value = None, None
+            self.lower_bound, self.upper_bound = None, None
 
-        # if `abs_threshold` is not provided, the threshold is calculated from the relative threshold and the best and
-        # worst values
+        # if `abs_threshold` is not provided, the threshold is calculated from the relative threshold and the bounds
         if abs_threshold is None:
             if rel_threshold is None:
                 raise ValueError("Either an absolute or a relative satisfaction threshold must be given for an "
                                  "objective.")
-            if self.best_value is None or self.worst_value is None:
-                raise ValueError("If only a relative threshold (instead of an absolute threshold) is provided, the best"
-                                 " and worst values need to be given, too")
+            if self.upper_bound is None or self.lower_bound is None:
+                raise ValueError("If only a relative threshold (instead of an absolute threshold) is provided, the "
+                                 "upper and lower bounds of the objective must be given as well.")
             if rel_threshold < 0.0 or rel_threshold > 1.0:
                 raise ValueError("The relative satisfaction threshold must be between 0 and 1.")
-            self.abs_threshold = self.worst_value + rel_threshold * (self.best_value - self.worst_value)
-            self.normalizable = True
-
-        # if `abs_threshold` is provided, the threshold is set to this value after checking compatibility with
-        # the best and worst values
-        else:
-            if self.best_value is not None:
-                if maximize is True and abs_threshold < self.worst_value:
-                    raise ValueError("For maximization problems, the satisfaction threshold must be greater than the "
-                                     "worst possible value.")
-                elif maximize is False and abs_threshold > self.worst_value:
-                    raise ValueError("For minimization problems, the satisfaction threshold must be smaller than the "
-                                     "worst possible value.")
-                self.normalizable = True
+            if self.maximize:
+                self.abs_threshold = self.lower_bound + rel_threshold * (self.upper_bound - self.lower_bound)
             else:
-                self.normalizable = False
-            if self.best_value is not None:
-                if maximize is True and abs_threshold > self.best_value:
-                    raise ValueError("For maximization problems, the satisfaction threshold must be smaller than the "
-                                     "best possible value.")
-                elif maximize is False and abs_threshold < self.best_value:
-                    raise ValueError("For minimization problems, the satisfaction threshold must be greater than the "
-                                     "best possible value.")
+                self.abs_threshold = self.upper_bound - rel_threshold * (self.upper_bound - self.lower_bound)
+
+        # if `abs_threshold` is provided, the threshold is set after checking compatibility with the bounds
+        else:
+            if self.normalizable:
+                if not (self.lower_bound <= abs_threshold <= self.upper_bound):
+                    raise ValueError("The satisfaction threshold must be within the provided lower and upper bounds.")
 
             self.abs_threshold = abs_threshold
 
@@ -119,6 +102,13 @@ class AuxiliaryObjective(torch.nn.Module):
         values = self.function(Y, X)
 
         # Performs a MinMax normalization
+        if self.maximize:
+            best_value, worst_value = self.upper_bound, self.lower_bound
+        else:
+            best_value, worst_value = self.lower_bound, self.upper_bound
+
+
+
         if normalize and self.normalizable:
             values = (values - self.worst_value) / (self.threshold - self.worst_value)
 
@@ -131,19 +121,15 @@ class AuxiliaryObjective(torch.nn.Module):
         return values
 
     @property
-    def bounds(self) -> Tuple[float, float]:
-        """
-        Provides the bounds of the objective as a Tuple of floats.
-
-        Returns:
-            float: Lower bound (i.e. the "worst" possible value)
-            float: Upper bound (i.e. the "best" possible value).
-        """
-        return self.worst_value, self.best_value
-
-    @property
     def threshold(self) -> float:
         """
         Returns the absolute satisfaction threshold value of the objective.
         """
         return self.abs_threshold
+
+    @property
+    def normalizable(self) -> bool:
+        """
+        Returns True if the objective can be MinMax-normalized, i.e. if both the upper and lower bounds are provided.
+        """
+        return self.lower_bound is not None and self.upper_bound is not None
