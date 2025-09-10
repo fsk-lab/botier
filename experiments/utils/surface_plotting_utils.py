@@ -38,7 +38,6 @@ def plot_function_with_objectives(
     satisfaction = torch.stack([obj_values_normal[..., i] >= 1.0 for i, obj in enumerate(objectives)], dim=-1)
     overall_satisfaction = torch.all(satisfaction, dim=-1)
     satisfactory_points = obj_values[overall_satisfaction, ...]
-    satisfaction_fraction = torch.sum(overall_satisfaction).item() / num_points
 
     # convert the tensors to numpy arrays for matplotlib
     grid, obj_values, satisfactory_points = grid.numpy(), obj_values.numpy(), satisfactory_points.numpy()
