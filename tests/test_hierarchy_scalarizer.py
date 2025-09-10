@@ -33,7 +33,7 @@ def test_hierarchy_scalarizer_forward():
 
     hierarchy_mask = torch.stack(hierarchy_masks, dim=-1)
     hierarchy_mask = torch.prod(hierarchy_mask, dim=-1)
-    final_objective = hierarchy_mask * values[..., 2]
+    final_objective = hierarchy_mask * (values[..., 2] - thresholds[2])
     scalarized_objectives.append(final_objective)
 
     expected = torch.stack(scalarized_objectives, dim=-1)

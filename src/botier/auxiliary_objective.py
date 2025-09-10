@@ -8,8 +8,9 @@ class AuxiliaryObjective(torch.nn.Module):
     Optimization. The class provides a callable that computes the auxiliary objective from the inputs and outputs of
     an experiment in an auto-differentiable way.
 
-    Provides automatic handling of MinMax-scaling of the objective values to a [0, 1] range, which is very useful when
-    defining differentiable composite_objectives.
+    Returns a modified tensor of objective values that can be used for calculating hierarchical acquisition functions.
+    The values of the auxiliary objective are always non-negative, with 0 corresponding to the worst possible value. The
+    values can be optionally scaled to the [0, 1]-interval (with 1 being the satisfaction threshold).
 
     Args:
         maximize (bool): True if the objective should be maximized, False if it should be minimized.
@@ -86,7 +87,13 @@ class AuxiliaryObjective(torch.nn.Module):
 
     def forward(self, Y: torch.Tensor, X: Optional[torch.Tensor], normalize: bool = True) -> torch.Tensor:
         """
-        Computes the scalarized auxiliary objective function for the given samples and data points.
+        Computes the scalarized auxiliary objective function for the given samples and data points. Automatically
+        handles the optimization direction so that the resulting values can be treated as an optimization problem.
+        Returns strictly positive values which can be used for additive scalarization functions.
+
+        If `normalize` is True, it linearly transforms the data such that the worst possible value corresponds to 0, and
+        the satisfaction threshold corresponds to 1. If `normalize` is False, it linearly transforms the data such that
+        the worst possible value corresponds to 0, and the original value range is preserved.
 
         Args:
             Y (torch.Tensor): A :code:`... x m`-dim Tensor of y values (e.g. from a model posterior, in this case, the
@@ -101,15 +108,31 @@ class AuxiliaryObjective(torch.nn.Module):
         """
         values = self.function(Y, X)
 
-        if self.normalizable and normalize:
-            best, worst = (self.upper_bound, self.lower_bound) if self.maximize else (self.lower_bound, self.upper_bound)
-        else:
-            upper, lower = values.flatten().max().item(), values.flatten().min().item()
-            best, worst = (upper, lower) if self.maximize else (lower, upper)
+        if normalize:
+            if self.normalizable:
+                best, worst = (self.upper_bound, self.lower_bound) if self.maximize else (self.lower_bound, self.upper_bound)
+            else:
+                upper, lower = values.flatten().max().item(), values.flatten().min().item()
+                best, worst = (upper, lower) if self.maximize else (lower, upper)
 
-        values_scaled = (values - worst) / (self.threshold - worst)
-        best_scaled = (best - worst) / (self.threshold - worst)
-        values_scaled = torch.clamp(values_scaled, 0.0, best_scaled)
+            # apply MinMax scalarization, and clamp the values out of the provided value range
+            values_scaled = (values - worst) / (self.threshold - worst)
+            best_scaled = (best - worst) / (self.threshold - worst)
+            values_scaled = torch.clamp(values_scaled, 0.0, best_scaled)
+
+        else:
+            values_transformed = values if self.maximize else -values
+
+            if self.normalizable:
+                if self.maximize:
+                    values_scaled = values_transformed - self.lower_bound
+                    values_scaled = torch.clamp(values_scaled, 0.0, self.upper_bound - self.lower_bound)
+                else:
+                    values_scaled = values_transformed + self.upper_bound
+                    values_scaled = torch.clamp(values_scaled, 0.0, self.lower_bound + self.upper_bound)
+            else:
+                lower_transformed = values_transformed.flatten().min().item()
+                values_scaled = values_transformed - lower_transformed
 
         return values_scaled
 
