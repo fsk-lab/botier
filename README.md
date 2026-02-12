@@ -3,10 +3,12 @@
 [![Docs](https://readthedocs.org/projects/botier/badge/?version=latest)](https://botier.readthedocs.io/en/latest/)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/botier?label=PyPI)](https://pypi.org/project/botier/)
+[![DOI](https://zenodo.org/badge/827759041.svg)](https://doi.org/10.5281/zenodo.15305205)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2501.15554-b31b1b.svg)](https://arxiv.org/abs/2501.15554)
+
 
 # BOTier: Multi-Objective Bayesian Optimization with Tiered Composite Objectives
 
